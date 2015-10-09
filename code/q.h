@@ -3,141 +3,142 @@
 
 // Define an easy to use memory allocation method.
 #include <stdlib.h>
+#include <stdio.h>
+#include "tcb.h"
 
 #define ALLOC(t) (t*) calloc(1, sizeof(t))
 
-struct QElement
-{
-    struct QElement * previous;
-    struct QElement * next;
-    int payload;
-} QElement;
+int element_counter = 0;
 
-struct QElement * NewItem()
+typedef struct Queue
 {
-    struct QElement * element = ALLOC(struct QElement);
-    element->previous = NULL;
+    struct TCB_t * head;
+} Queue;
+
+TCB_t * NewItem();
+Queue * InitQueue();
+void AddQueue(struct Queue * queue, struct TCB_t * tcb);
+TCB_t * DelQueue(struct Queue * queue);
+void RotateQ(struct Queue * queue);
+
+struct TCB_t * NewItem()
+{
+    TCB_t * element = ALLOC(struct TCB_t);
+    element->prev = NULL;
     element->next = NULL;
-    element->payload = -1;
+    element->id = ++element_counter;
     return element;
 }
 
-struct QElement * InitQueue()
+struct Queue * InitQueue()
 {
-    struct QElement * head = ALLOC(struct QElement);
-    printf("\nNew Queue\n");
-    return head;
+    return ALLOC(struct Queue);
 }
 
-void AddToQueue(struct QElement * head, struct QElement * element)
+void AddQueue(struct Queue * queue, struct TCB_t * element)
 {
-    printf("\n1 Added Successfully");
-    if(head == NULL)
+    if(queue->head == NULL)
     {
-        printf("\n1 Head Null");
-        head = element;
-        head->previous = head;
-        head->next = head;
-        printf("\n2 Head Null");
+        queue->head = element;
+        queue->head->prev = queue->head;
+        queue->head->next = queue->head;
     }
     else
     {
-        printf("\n1 Head Not Null");
-        struct QElement * tail = head->previous;
-        printf("\ntail = head->previous;");
+        TCB_t * tail = queue->head->prev;
         tail->next = element;
-        printf("\ntail->next = element;");
-        element->previous = tail;
-        printf("\nelement->previous = tail;");
+        element->prev = tail;
         tail = tail->next;
-        printf("\ntail = tail->next;");
 
         // To make queue circular
-        tail->next = head;
-        printf("\ntail->next = head;");
-        head->previous = tail;
-        printf("\nhead->previous = tail;");
-
-        printf("\n2 Head Not Null");
+        tail->next = queue->head;
+        queue->head->prev = tail;
     }
-    printf("\n2 Added Successfully");
 }
 
-struct QElement * DelQueue(struct QElement * head)
+struct TCB_t * DelQueue(struct Queue * queue)
 {
-    if(head == NULL)
+    // No elements
+    if(queue->head == NULL)
     {
         return NULL;
     }
+    // One element
+    else if (queue->head->next == queue->head)
+    {
+        TCB_t * temp = queue->head;
+        queue->head = NULL;
+        return temp;
+    }
+    // Multiple elements
     else
     {
-        struct QElement * temp = head;
-        struct QElement * tail = head->previous;
+        TCB_t * temp = queue->head;
+        TCB_t * tail = queue->head->prev;
 
         // Only 1 element
-        if(head->next == head)
+        if(queue->head->next == queue->head)
         {
-            head = NULL;
+            queue->head = NULL;
         }
-        // Multiple elements
+            // Multiple elements
         else
         {
-            head = head->next;
+            queue->head = queue->head->next;
             // To make queue circular
-            head->previous = tail;
-            tail->next = head;
+            queue->head->prev = tail;
+            tail->next = queue->head;
         }
         return temp;
     }
 }
 
-void Rotate(struct QElement * head)
+void RotateQ(struct Queue * queue)
 {
-    head = head->next;
+    queue->head = queue->head->next;
 }
 
-void PrintQueue(struct QElement * head)
+void PrintQueue(struct Queue * queue)
 {
-    struct QElement * temp = head;
+    TCB_t * temp = queue->head;
 
     // No elements
-    if(head == NULL)
+    if(queue->head == NULL)
     {
         printf("\nEmpty Queue");
         return;
     }
+
     // Only 1 element
-    else if(temp->next == head)
+    else if(temp->next == queue->head)
     {
-        printf("\n%d", temp->payload);
+        printf("\nElement %d", queue->head->id);
         return;
     }
+
     // Multiple elements
     else
     {
-        printf("\n%d", temp->payload);
+        // If this wasn't here it wouldn't pass initial check.
+        printf("\nElement %d", temp->id);
         temp = temp->next;
-        while(temp != head)
+        while(temp != queue->head)
         {
-            printf("\n%d", temp->payload);
+            printf("\nElement %d", temp->id);
             temp = temp->next;
         }
     }
-
 }
 
-void FreeQueue(struct QElement * head)
+void FreeQueue(struct Queue * queue)
 {
-    if(head == NULL)
+    TCB_t * head;
+    while(head != NULL)
     {
-        return;
-    }
-    else
-    {
-        struct QElement * next = head->next;
-        free(head);
-        head = NULL;
-        FreeQueue(next);
+        TCB_t * temp = head;
+        head = head->next;
+        free(temp);
+        temp = NULL;
     }
 }
 
