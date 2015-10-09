@@ -21,7 +21,16 @@ int main()
 
     PrintQueue(queue);
 
+    RotateQ(queue);
+    RotateQ(queue);
+    RotateQ(queue);
+
     printf("\n\n\n");
+
+    PrintQueue(queue);
+
+    printf("\n\n\n");
+
 
     printf("\n%d", DelQueue(queue)->id);
     printf("\n%d", DelQueue(queue)->id);
