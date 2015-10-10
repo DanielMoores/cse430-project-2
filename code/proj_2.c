@@ -31,6 +31,7 @@ int main()
 
     printf("\n\n\n");
 
+    init_TCB(NULL, NULL, NULL, NULL);
 
     printf("\n%d", DelQueue(queue)->id);
     printf("\n%d", DelQueue(queue)->id);
