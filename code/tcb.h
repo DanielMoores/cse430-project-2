@@ -6,12 +6,17 @@
 #include <stdio.h>
 
 
+
+#include <ucontext.h>
+
 typedef struct TCB_t {
     struct TCB_t     *next;
     struct TCB_t     *prev;
     ucontext_t      context;
-    int id; // TODO REMOVE THIS LATER, After testing.
+    int id;
 } TCB_t;
+
+
 
 void init_TCB (TCB_t *tcb, void *function, void *stackP, int stack_size)
 {
