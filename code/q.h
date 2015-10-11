@@ -15,6 +15,8 @@ typedef struct Queue
     struct TCB_t * head;
 } Queue;
 
+Queue * runQ;
+
 TCB_t * NewItem();
 Queue * InitQueue();
 void AddQueue(struct Queue * queue, struct TCB_t * tcb);
