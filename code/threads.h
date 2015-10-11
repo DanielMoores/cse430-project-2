@@ -3,11 +3,9 @@
 #define CSE430_PROJECT_2_THREADS_H
 
 #include <stdlib.h>
-#include "tcb.h"
 #include "q.h"
 
-// NOT supposed to have Queue parameter. Necessary for our implementation.
-void start_thread(void (*function)(void), Queue * queue)
+void start_thread(void (*function)(void))
 {
     // begin pseudo code
     // allocate a stack (via malloc) of a certain size
@@ -23,9 +21,24 @@ void start_thread(void (*function)(void), Queue * queue)
 
     // call addQ to add this TCB into the “RunQ” which is a
     // global header pointer
-    AddQueue(queue, tcb);
+    AddQueue(runQ, tcb);
 
     //end pseudo code */
+}
+
+void run()
+{
+    ucontext_t parent;  // Get a place to store the main context, for faking
+    getcontext(&parent);    // Magic sauce
+    swapcontext(&parent, &runQ->head->context); // Start the first thread.
+}
+
+void yield()
+{
+    ucontext_t current_context = runQ->head->context;
+    getcontext(&current_context); // TODO determine if needed?
+    RotateQ(runQ);
+    swapcontext(&current_context, &runQ->head->context);
 }
 
 #endif //CSE430_PROJECT_2_THREADS_H
